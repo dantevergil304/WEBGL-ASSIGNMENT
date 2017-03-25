@@ -59,9 +59,10 @@ function initFlatTexture(){
 
 
 
-function Flat(x, y){
+function Flat(x, y, z){
 	this.posX = x;
 	this.posY = y;
+	this.posZ = z;
 	this.width = FlatWidth;
 	this.height = FlatHeight;
 }
@@ -69,7 +70,7 @@ function Flat(x, y){
 
 Flat.prototype.draw = function(){
 	mvPushMatrix();
-	mat4.translate(mvMatrix, [this.posX, this.posY , cubeSize - 1]);
+	mat4.translate(mvMatrix, [this.posX, this.posY , this.posZ]);
 	gl.bindBuffer(gl.ARRAY_BUFFER, flatVertexBuffer);
 	gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, flatVertexBuffer.itemSize, gl.FLOAT, false, 0 , 0);
 

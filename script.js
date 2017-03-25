@@ -119,13 +119,13 @@ function degToRad(deg){
 var zoom = -10;
 var cubes = [];
 var walls = [];
-var flat = new Flat(0.0 , 0.0);
+var flat = new Flat(0.0 , 0.0, cubeSize- 2.8*cubeSize);
 function drawScene(){
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	mat4.perspective(45, canvas.width / canvas.height, 0.1, 100.0, pMatrix);
 	mat4.identity(mvMatrix);
 	mat4.translate(mvMatrix, [0.0, 0.0, zoom]);	
-	
+	mat4.rotate(mvMatrix, degToRad(-50), [1, 0 , 0]);
 	flat.draw();
 	
 	for (var i = 0; i < walls.length; i++)
@@ -148,10 +148,10 @@ function initCube(){
 }
 
 function initWalls(){
-	walls.push(new Wall(flat.posX, flat.posY + flat.height + wallHeight));
-	walls.push(new Wall(flat.posX, flat.posY -flat.height - wallHeight));
-	walls.push(new Wall2(flat.posX -flat.width - wallWidth, flat.posY));
-	walls.push(new Wall2(flat.posX +flat.width + wallWidth, flat.posY));
+	walls.push(new Wall(flat.posX, flat.posY + flat.height + wallHeight, flat.posZ));
+	walls.push(new Wall(flat.posX, flat.posY -flat.height - wallHeight, flat.posZ));
+	walls.push(new Wall2(flat.posX -flat.width - wallWidth, flat.posY, flat.posZ));
+	walls.push(new Wall2(flat.posX +flat.width + wallWidth, flat.posY, flat.posZ));
 }
 
 

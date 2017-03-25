@@ -1,9 +1,13 @@
 var wallVertexBuffer;
 var wallTextureBuffer;
 var wallIndexBuffer;
-var wallHeight = 0.125;
-var wallSize = 0.125;
-var wallWidth = 0.125;
+
+
+//Xet theo ban nhin doc
+var wallHeight = 0.1; //y
+var wallSize = 0.75; //z
+var wallWidth = 0.1; //x
+
 function initWallBuffer(){
 	
   wallVertexBuffer = gl.createBuffer();
@@ -114,9 +118,10 @@ function initWallBuffer(){
 }
 
 
-function Wall(x, y){
+function Wall(x, y, z){
 	this.posX = x;
 	this.posY = y;
+  this.posZ = z;
   this.width = wallWidth;
   this.height = wallHeight;
   this.size = wallSize;
@@ -130,14 +135,14 @@ function initWallTexture(){
   wallTexture.image.onload = function(){
     handleLoadedTexture(wallTexture);
   }
-  wallTexture.image.src="mud.gif";
+  wallTexture.image.src="index.gif";
 }
 
 
 Wall.prototype.draw = function(){
 	mvPushMatrix();
 
-	mat4.translate(mvMatrix, [this.posX, this.posY, cubeSize - 1]);
+	mat4.translate(mvMatrix, [this.posX, this.posY, this.posZ]);
 	gl.bindBuffer(gl.ARRAY_BUFFER, wallVertexBuffer);
 	gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, wallVertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
@@ -202,8 +207,8 @@ function initWall2Buffer(){
   wall2VertexBuffer.numItems = 24;
 }
 
-function Wall2(x, y){
-  Wall.call(this, x, y);
+function Wall2(x, y, z){
+  Wall.call(this, x, y, z);
 }
 
 Wall2.prototype = Object.create(Wall.prototype);
@@ -211,7 +216,7 @@ Wall2.prototype = Object.create(Wall.prototype);
 Wall2.prototype.draw = function (){
   mvPushMatrix();
 
-  mat4.translate(mvMatrix, [this.posX, this.posY, cubeSize - 1]);
+  mat4.translate(mvMatrix, [this.posX, this.posY, this.posZ]);
   gl.bindBuffer(gl.ARRAY_BUFFER, wall2VertexBuffer);
   gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, wall2VertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
