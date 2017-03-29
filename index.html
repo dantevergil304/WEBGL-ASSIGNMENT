@@ -3,8 +3,8 @@
 <head>
 	<title>First step with WEBGL</title>
 	<meta charset="utf-8">
-	<script src="glMatrix.js"></script>
-	<script src="webgl-utils.js"></script>
+	<script src="./lib/glMatrix.js"></script>
+	<script src="./lib/webgl-utils.js"></script>
 	<script id="shader-fs" type="x-shader/x-fragment">
     	precision mediump float;
 
@@ -32,10 +32,10 @@
         	vTextureCoord = aTextureCoord;
     }
 	</script>
-	<script src="Wall.js"></script>
-	<script src="Flat.js"></script>
-	<script src="Cube.js"></script>
-	<script src="script.js"></script>
+	<script src="./src/Wall.js"></script>
+	<script src="./src/Flat.js"></script>
+	<script src="./src/Cube.js"></script>
+	<script src="./src/script.js"></script>
 </head>
 <body onload="WebGLload()">
 	<canvas id='surface' width='1400' height='800'></canvas>
