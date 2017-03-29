@@ -137,7 +137,7 @@ function initWallTexture(){
   wallTexture.image.onload = function(){
     handleLoadedTexture(wallTexture);
   }
-  wallTexture.image.src="./img/index.gif";
+  wallTexture.image.src="./img/woodTexture.jpg";
 }
 
 

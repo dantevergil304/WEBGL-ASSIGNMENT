@@ -121,7 +121,7 @@ function initCubeTexture(){
 	cubeTexture.image.onload=function(){
 		handleLoadedTexture(cubeTexture);
 	}
-	cubeTexture.image.src="./img/nehe.gif";
+	cubeTexture.image.src="./img/crateTexture.jpg";
 }
 
 

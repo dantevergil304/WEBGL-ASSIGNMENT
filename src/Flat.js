@@ -56,7 +56,7 @@ function initFlatTexture(){
 	flatTexture.image.onload = function(){
 		handleLoadedTexture(flatTexture);
 	}
-	flatTexture.image.src = "./img/mud.gif";
+	flatTexture.image.src = "./img/flatTexture.png";
 }
 
 
