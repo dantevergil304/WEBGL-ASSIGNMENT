@@ -1,7 +1,7 @@
 var gl;
 var canvas;
-
-
+var tex;
+var score = 0;
 function initViewPort(){
 	gl.viewport(0, 0, canvas.width, canvas.height);
 }
@@ -121,14 +121,18 @@ function degToRad(deg){
 var zoom = -10;
 var cubes = [];
 var walls = [];
-var flat = new Flat(0.0 , 0.0, cubeSize- 2.8*cubeSize); //Mat phang
-var sphere =  new Sphere(0, 0);
+var flat = new Flat(0.0 , 0.0, -2); //Mat phang
+var sphere =  new Sphere(0, 0, flat.posZ + radius);
 function drawScene(){
+	text.clearRect(0,0, text.canvas.width, text.canvas.height);
+	var msg = "Scores : " + score;
+	text.fillText(msg, 10 , 50);
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	mat4.perspective(45, canvas.width / canvas.height, 0.1, 100.0, pMatrix);
 	mat4.identity(mvMatrix);
-	mat4.translate(mvMatrix, [0.0, 0.0, zoom]);
+	mat4.translate(mvMatrix, [0.0, 2.0, zoom]);
 	mat4.rotate(mvMatrix, degToRad(-50), [1, 0 , 0]);
+	//mat4.rotate(mvMatrix, degToRad(-50), [0, 1 , 0]);
 	flat.draw();
 
 	sphere.draw();
@@ -136,7 +140,7 @@ function drawScene(){
 	for (var i = 0; i < walls.length; i++)
 		walls[i].draw();
 
-	for (var i = 0; i < 12; i++)
+	for (var i = 0; i < cubes.length; i++)
 		cubes[i].draw();
 }
 
@@ -149,7 +153,7 @@ function initCube(){
 	var radiusFlatRatio = 28/5;
 	var radius = (FlatHeight * FlatWidth) / radiusFlatRatio;
 	for (var i = 0; i < 12; i++){
-		cubes.push(new Cube(flat.posX + current_x + radius*Math.cos(degToRad(rot)),flat.posY + current_y + radius*Math.sin(degToRad(rot))));
+		cubes.push(new Cube(flat.posX + current_x + radius*Math.cos(degToRad(rot)),flat.posY + current_y + radius*Math.sin(degToRad(rot)), flat.posZ + 2.8 * cubeSize ));
 		rot += 30;
 	}
 }
@@ -167,32 +171,90 @@ function initWalls(){
 
 var lastTime = 0;
 
+var sign = 1;
 function animate(){
 	var timeNow = new Date().getTime();
 	if (lastTime != 0){
 		var elapsed = timeNow - lastTime;
-		for (var i = 0; i < 12; i++)
-			cubes[i].animate(elapsed);
+		sphere.animate(elapsed);
+		for (var i = 0; i < cubes.length; i++)
+			cubes[i].animate(elapsed,sign);
+
 	}
 	lastTime = timeNow;
 }
 
+
+
+var currentlyPressedKey = {};
+
+function handleKeyDown(event){
+	currentlyPressedKey[event.keyCode] = true;
+}
+
+function handleKeyUp(event){
+	currentlyPressedKey[event.keyCode] = false;
+}
+
+function intersectObject(x1, y1, x2, y2){
+	var number = (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
+	var para1 = (radius - cubeSize) * (radius - cubeSize);
+	var para2 = (radius + cubeSize) * (radius + cubeSize);
+	return para1 <= number && number <= para2;
+}
+
+function colisionDetected(){
+	var playerX = sphere.posX , playerY = sphere.posY;
+	console.log(playerX);
+	console.log(playerY);
+	for (var i = 0; i < cubes.length; i++)
+		if (intersectObject(playerX, playerY, cubes[i].posX, cubes[i].posY)){
+			console.log("colisionDetected");
+			cubes.splice(i,1);
+			score++;
+		}
+}
+
+function handleKeys(){
+	if (currentlyPressedKey[38] == true){
+		sphere.moveUp();
+	}
+
+	if (currentlyPressedKey[40] == true){
+		sphere.moveDown();
+	}
+
+	if (currentlyPressedKey[37] == true){
+		sphere.moveLeft();
+	}
+
+	if (currentlyPressedKey[39] == true){
+		sphere.moveRight();
+	}
+}
+
+
 function tick(){
 	requestAnimFrame(tick);
+	handleKeys();
+	colisionDetected();
 	drawScene();
 	animate();
 }
 
 
 function WebGLload(){
-	canvas = document.getElementById('surface');
+	canvas = document.getElementById('canvas');
 	gl = canvas.getContext('webgl');
+	textCanvas = document.getElementById('text');
+	text = textCanvas.getContext('2d');
+	text.font = "10px Monospace";
 	initViewPort();
 	initShaders();
-	initCubeBuffer();
-	initCubeTexture();
 	initFlatBuffer();
 	initFlatTexture();
+	initCubeBuffer();
+	initCubeTexture();
 	initWallBuffer();
 	initWall2Buffer();
 	initWallTexture();
@@ -202,5 +264,9 @@ function WebGLload(){
 	gl.enable(gl.DEPTH_TEST);
 	initCube();
 	initWalls();
+	document.onkeyup = handleKeyUp;
+	document.onkeydown = handleKeyDown;
 	tick();
+
 }
+window.onload= WebGLload;

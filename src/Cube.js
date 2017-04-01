@@ -126,9 +126,10 @@ function initCubeTexture(){
 
 
 //Tao vi tri cua khoi lap phuong
-function Cube(x, y){
+function Cube(x, y, z){
 	this.posX = x;
 	this.posY = y;
+	this.posZ = z;
 	this.rotY = 0;
 }
 
@@ -136,7 +137,7 @@ function Cube(x, y){
 Cube.prototype.draw = function(){
 	mvPushMatrix();
 
-	mat4.translate(mvMatrix, [this.posX, this.posY, 0]);
+	mat4.translate(mvMatrix, [this.posX, this.posY, this.posZ]);
 	mat4.rotate(mvMatrix, degToRad(this.rotY), [0, 1, 0]);
 	drawCube();
 
