@@ -122,6 +122,7 @@ var zoom = -10;
 var cubes = [];
 var walls = [];
 var flat = new Flat(0.0 , 0.0, cubeSize- 2.8*cubeSize); //Mat phang
+var sphere =  new Sphere(0, 0);
 function drawScene(){
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	mat4.perspective(45, canvas.width / canvas.height, 0.1, 100.0, pMatrix);
@@ -129,6 +130,8 @@ function drawScene(){
 	mat4.translate(mvMatrix, [0.0, 0.0, zoom]);
 	mat4.rotate(mvMatrix, degToRad(-50), [1, 0 , 0]);
 	flat.draw();
+
+	sphere.draw();
 
 	for (var i = 0; i < walls.length; i++)
 		walls[i].draw();
@@ -193,6 +196,8 @@ function WebGLload(){
 	initWallBuffer();
 	initWall2Buffer();
 	initWallTexture();
+	initSphereBuffer();
+	initSphereTexture();
 	gl.clearColor(220/250, 220/250, 220/250, 1.0);
 	gl.enable(gl.DEPTH_TEST);
 	initCube();
