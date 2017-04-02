@@ -176,7 +176,8 @@ function animate(){
 	var timeNow = new Date().getTime();
 	if (lastTime != 0){
 		var elapsed = timeNow - lastTime;
-		sphere.animate(elapsed);
+		if (isMoving == true)
+			sphere.animate(elapsed);
 		for (var i = 0; i < cubes.length; i++)
 			cubes[i].animate(elapsed,sign);
 
@@ -187,13 +188,15 @@ function animate(){
 
 
 var currentlyPressedKey = {};
-
+var isMoving = false;
 function handleKeyDown(event){
 	currentlyPressedKey[event.keyCode] = true;
+	isMoving = true;
 }
 
 function handleKeyUp(event){
 	currentlyPressedKey[event.keyCode] = false;
+	isMoving = false;
 }
 
 function intersectObject(x1, y1, x2, y2){

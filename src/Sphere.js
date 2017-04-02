@@ -111,11 +111,11 @@ Sphere.prototype.draw = function(){
 var speed = 0.01;
 
 Sphere.prototype.animate = function(elapsed){
-  if (this.rot < 0){
-    this.rot -= (180 * elapsed) / 1000.0;
+  if (this.rot < 0 ){
+    this.rot -= (360 * elapsed) / 1000.0;
   }
   else {
-    this.rot += (180 * elapsed) / 1000.0;
+    this.rot += (360 * elapsed) / 1000.0;
   }
 }
 
