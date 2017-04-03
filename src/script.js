@@ -130,7 +130,7 @@ function drawScene(){
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	mat4.perspective(45, canvas.width / canvas.height, 0.1, 100.0, pMatrix);
 	mat4.identity(mvMatrix);
-	mat4.translate(mvMatrix, [0.0, 2.0, zoom]);
+	mat4.translate(mvMatrix, [0.0, 0.0, zoom]);
 	mat4.rotate(mvMatrix, degToRad(-50), [1, 0 , 0]);
 	//mat4.rotate(mvMatrix, degToRad(-50), [0, 1 , 0]);
 	flat.draw();
@@ -169,17 +169,23 @@ function initWalls(){
 }
 
 
-var lastTime = 0;
 
-var sign = 1;
+function checkForMoving(){
+	for (var key in currentlyPressedKey)
+		if (currentlyPressedKey[key])
+			return true;
+	return false;
+}
+
+var lastTime = 0;
 function animate(){
 	var timeNow = new Date().getTime();
 	if (lastTime != 0){
 		var elapsed = timeNow - lastTime;
-		if (isMoving == true)
+		if (checkForMoving())
 			sphere.animate(elapsed);
 		for (var i = 0; i < cubes.length; i++)
-			cubes[i].animate(elapsed,sign);
+			cubes[i].animate(elapsed);
 
 	}
 	lastTime = timeNow;
@@ -188,15 +194,14 @@ function animate(){
 
 
 var currentlyPressedKey = {};
-var isMoving = false;
 function handleKeyDown(event){
 	currentlyPressedKey[event.keyCode] = true;
-	isMoving = true;
+
 }
 
 function handleKeyUp(event){
 	currentlyPressedKey[event.keyCode] = false;
-	isMoving = false;
+
 }
 
 function intersectObject(x1, y1, x2, y2){
