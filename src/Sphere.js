@@ -120,7 +120,8 @@ Sphere.prototype.animate = function(elapsed){
 }
 
 Sphere.prototype.moveLeft = function(){
-  if (this.posX > -FlatWidth + radius){
+  console.log(this.posX - radius > walls[2].posX + wallWidth);
+  if (this.posX - radius > walls[2].posX + wallWidth){
     flat.posX += speed;
     for (var i = 0; i < cubes.length; i++)
       cubes[i].posX +=speed;
@@ -132,7 +133,7 @@ Sphere.prototype.moveLeft = function(){
 }
 
 Sphere.prototype.moveRight = function(){
-  if (this.posX < FlatWidth - radius){
+  if (this.posX + radius < walls[3].posX - wallWidth){
     flat.posX -= speed;
     for (var i = 0; i < cubes.length; i++)
       cubes[i].posX -=speed;
@@ -144,7 +145,7 @@ Sphere.prototype.moveRight = function(){
 }
 
 Sphere.prototype.moveUp = function(){
-  if (this.posY < FlatHeight - radius){
+  if (this.posY + radius < walls[0].posY - wallHeight){
     flat.posY -= speed;
     for (var i = 0; i < cubes.length; i++)
       cubes[i].posY -=speed;
@@ -157,7 +158,7 @@ Sphere.prototype.moveUp = function(){
 }
 
 Sphere.prototype.moveDown = function(){
-  if (this.posY > -FlatHeight + radius){
+  if (this.posY - radius > walls[1].posY + wallHeight){
     flat.posY += speed;
     for (var i = 0; i < cubes.length; i++)
       cubes[i].posY +=speed;
@@ -167,8 +168,4 @@ Sphere.prototype.moveDown = function(){
       this.rot = -this.rot;
     this.direction = [1, 0, 0];
   }
-}
-
-function moveWall(){
-
 }
