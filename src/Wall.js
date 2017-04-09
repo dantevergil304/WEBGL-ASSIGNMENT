@@ -1,6 +1,7 @@
 var wallVertexBuffer;
 var wallTextureBuffer;
 var wallIndexBuffer;
+var wallNormalBuffer;
 
 
 
@@ -9,7 +10,7 @@ var wallSize = 0.75; //z
 var wallWidth = 0.1; //x
 
 
-//Buffer cho buc tuong nam nang
+//Buffer cho buc tuong nam ngang
 function initWallBuffer(){
 
   wallVertexBuffer = gl.createBuffer();
@@ -102,6 +103,29 @@ function initWallBuffer(){
     wallTextureBuffer.itemSize = 2;
     wallTextureBuffer.numItems = 24;
 
+    wallNormalBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, wallNormalBuffer);
+
+    var Normals = [
+      [0.0, 0.0, 1.0], 		// Front face
+      [0.0, 0.0, -1.0], 	// Back face
+      [0.0, 1.0, 0.0],		// Top face
+      [0.0, -1.0, 0.0],		// Bottom face
+      [1.0, 0.0, 0.0],		// Right face
+      [-1.0, 0.0, 0.0]		// Left face
+    ];
+    var normals = [];
+    for(key in Normals){
+      for(var i = 0; i < 4; i++){
+        normals = normals.concat(Normals[key]);
+      }
+    }
+
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normals), gl.STATIC_DRAW);
+    wallNormalBuffer.itemSize = 3;
+    wallNormalBuffer.numItems = 24;
+
+
     wallIndexBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, wallIndexBuffer);
 
@@ -143,8 +167,8 @@ function initWallTexture(){
 
 Wall.prototype.draw = function(){
 	mvPushMatrix();
-
 	mat4.translate(mvMatrix, [this.posX, this.posY, this.posZ]);
+
 	gl.bindBuffer(gl.ARRAY_BUFFER, wallVertexBuffer);
 	gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, wallVertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
@@ -154,6 +178,9 @@ Wall.prototype.draw = function(){
 	gl.activeTexture(gl.TEXTURE0);
 	gl.bindTexture(gl.TEXTURE_2D, wallTexture);
 	gl.uniform1i(shaderProgram.samplerUniform, 0);
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, wallNormalBuffer);
+  gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, wallNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, wallIndexBuffer);
 	setUniformMatrix();
@@ -221,6 +248,7 @@ Wall2.prototype.draw = function (){
   mvPushMatrix();
 
   mat4.translate(mvMatrix, [this.posX, this.posY, this.posZ]);
+
   gl.bindBuffer(gl.ARRAY_BUFFER, wall2VertexBuffer);
   gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, wall2VertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
@@ -230,6 +258,9 @@ Wall2.prototype.draw = function (){
   gl.activeTexture(gl.TEXTURE0);
   gl.bindTexture(gl.TEXTURE_2D, wallTexture);
   gl.uniform1i(shaderProgram.samplerUniform, 0);
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, wallNormalBuffer);
+  gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, wallNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, wallIndexBuffer);
   setUniformMatrix();

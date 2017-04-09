@@ -6,32 +6,55 @@
 	<script src="./lib/glMatrix.js"></script>
 	<script src="./lib/webgl-utils.js"></script>
 	<script id="shader-fs" type="x-shader/x-fragment">
-    	precision mediump float;
+			precision mediump float;
 
-    	varying vec2 vTextureCoord;
+			varying vec2 vTextureCoord;
+			varying vec3 vTransformedNormal;
+			varying vec4 vPosition;
 
-    	uniform sampler2D uSampler;
+			uniform vec3 uAmbientColor;
 
-	    void main(void) {
-    	    gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
-    	}
+			uniform vec3 uPointLightingLocation;
+			uniform vec3 uPointLightingColor;
+
+			uniform sampler2D uSampler;
+
+
+			void main(void) {
+					vec3 lightWeighting;
+					vec3 lightDirection = normalize(uPointLightingLocation - vPosition.xyz);
+
+					float directionalLightWeighting = max(dot(normalize(vTransformedNormal), lightDirection), 0.0);
+					lightWeighting = uAmbientColor + uPointLightingColor * directionalLightWeighting;
+
+					vec4 fragmentColor;
+					fragmentColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
+					gl_FragColor = vec4(fragmentColor.rgb * lightWeighting, fragmentColor.a);
+			}
 	</script>
 
 	<script id="shader-vs" type="x-shader/x-vertex">
-    	attribute vec3 aVertexPosition;
-    	attribute vec2 aTextureCoord;
+			attribute vec3 aVertexPosition;
+			attribute vec3 aVertexNormal;
+			attribute vec2 aTextureCoord;
 
-	    uniform mat4 uMVMatrix;
-	    uniform mat4 uPMatrix;
+			uniform mat4 uMVMatrix;
+			uniform mat4 uPMatrix;
+			uniform mat3 uNMatrix;
 
-	    varying vec2 vTextureCoord;
+			varying vec2 vTextureCoord;
+			varying vec3 vTransformedNormal;
+			varying vec4 vPosition;
 
 
-    	void main(void) {
-        	gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
-        	vTextureCoord = aTextureCoord;
-    }
+			void main(void) {
+					vPosition = uMVMatrix * vec4(aVertexPosition, 1.0);
+					gl_Position = uPMatrix * vPosition;
+					vTextureCoord = aTextureCoord;
+					vTransformedNormal = uNMatrix * aVertexNormal;
+			}
 	</script>
+	<script src="./src/Lighting.js"></script>
 	<script src="./src/Wall.js"></script>
 	<script src="./src/Flat.js"></script>
 	<script src="./src/Cube.js"></script>

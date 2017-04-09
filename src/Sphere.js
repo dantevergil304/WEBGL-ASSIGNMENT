@@ -1,6 +1,7 @@
 var sphereVertexPositionBuffer;
 var sphereVertexTextureCoordBuffer;
 var sphereVertexIndexBuffer;
+var sphereVertexNormalBuffer;
 var radius = 0.2;
 function initSphereBuffer(){
   var latitudeBands = 30;
@@ -8,6 +9,7 @@ function initSphereBuffer(){
 
 
   var vertexPositionData = [];
+  var normalData = [];
   var textureCoordData = [];
 
   for(var latNumber = 0; latNumber <= latitudeBands; latNumber++){
@@ -26,6 +28,9 @@ function initSphereBuffer(){
       var u = 1 - (longNumber / longitudeBands);
       var v = 1 - (latNumber / latitudeBands);
 
+      normalData.push(x);
+      normalData.push(y);
+      normalData.push(z);
       textureCoordData.push(u);
       textureCoordData.push(v);
       vertexPositionData.push(x * radius);
@@ -50,23 +55,29 @@ function initSphereBuffer(){
     }
   }
 
-  moonVertexTextureCoordBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, moonVertexTextureCoordBuffer);
+  sphereVertexTextureCoordBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, sphereVertexTextureCoordBuffer);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoordData), gl.STATIC_DRAW);
-  moonVertexTextureCoordBuffer.itemSize = 2;
-  moonVertexTextureCoordBuffer.numItems = textureCoordData.length / 2;
+  sphereVertexTextureCoordBuffer.itemSize = 2;
+  sphereVertexTextureCoordBuffer.numItems = textureCoordData.length / 2;
 
-  moonVertexPositionBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, moonVertexPositionBuffer);
+  sphereVertexPositionBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, sphereVertexPositionBuffer);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexPositionData), gl.STATIC_DRAW);
-  moonVertexPositionBuffer.itemSize = 3;
-  moonVertexPositionBuffer.numItems = vertexPositionData.length / 3;
+  sphereVertexPositionBuffer.itemSize = 3;
+  sphereVertexPositionBuffer.numItems = vertexPositionData.length / 3;
 
-  moonVertexIndexBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, moonVertexIndexBuffer);
+  sphereVertexNormalBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, sphereVertexNormalBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normalData), gl.STATIC_DRAW);
+  sphereVertexNormalBuffer.itemSize = 3;
+  sphereVertexNormalBuffer.numItems = normalData.length / 3;
+
+  sphereVertexIndexBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, sphereVertexIndexBuffer);
   gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indexData), gl.STATIC_DRAW);
-  moonVertexIndexBuffer.itemSize = 1;
-  moonVertexIndexBuffer.numItems = indexData.length;
+  sphereVertexIndexBuffer.itemSize = 1;
+  sphereVertexIndexBuffer.numItems = indexData.length;
 }
 
 var sphereTexture;
@@ -96,15 +107,18 @@ Sphere.prototype.draw = function(){
     gl.bindTexture(gl.TEXTURE_2D, sphereTexture);
     gl.uniform1i(shaderProgram.samplerUniform, 0);
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, moonVertexPositionBuffer);
-    gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, moonVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+    gl.bindBuffer(gl.ARRAY_BUFFER, sphereVertexPositionBuffer);
+    gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, sphereVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, moonVertexTextureCoordBuffer);
-    gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, moonVertexTextureCoordBuffer.itemSize, gl.FLOAT, false, 0, 0);
+    gl.bindBuffer(gl.ARRAY_BUFFER, sphereVertexTextureCoordBuffer);
+    gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, sphereVertexTextureCoordBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, moonVertexIndexBuffer);
+    gl.bindBuffer(gl.ARRAY_BUFFER, sphereVertexNormalBuffer);
+    gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, sphereVertexNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, sphereVertexIndexBuffer);
     setUniformMatrix();
-    gl.drawElements(gl.TRIANGLES, moonVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+    gl.drawElements(gl.TRIANGLES, sphereVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
     mvPopMatrix();
 }
 
@@ -132,6 +146,7 @@ Sphere.prototype.animate = function(elapsed){
 Sphere.prototype.moveLeft = function(){
   console.log(this.posX - radius > walls[2].posX + wallWidth);
   if (this.posX - radius > walls[2].posX + wallWidth){
+    light.posX += speed;
     flat.posX += speed;
     for (var i = 0; i < cubes.length; i++)
       cubes[i].posX +=speed;
@@ -145,6 +160,7 @@ Sphere.prototype.moveLeft = function(){
 
 Sphere.prototype.moveRight = function(){
   if (this.posX + radius < walls[3].posX - wallWidth){
+    light.posX -= speed;
     flat.posX -= speed;
     for (var i = 0; i < cubes.length; i++)
       cubes[i].posX -=speed;
@@ -158,6 +174,7 @@ Sphere.prototype.moveRight = function(){
 
 Sphere.prototype.moveUp = function(){
   if (this.posY + radius < walls[0].posY - wallHeight){
+    light.posY -= speed;
     flat.posY -= speed;
     for (var i = 0; i < cubes.length; i++)
       cubes[i].posY -=speed;
@@ -171,6 +188,7 @@ Sphere.prototype.moveUp = function(){
 
 Sphere.prototype.moveDown = function(){
   if (this.posY - radius > walls[1].posY + wallHeight){
+    light.posY += speed;
     flat.posY += speed;
     for (var i = 0; i < cubes.length; i++)
       cubes[i].posY +=speed;

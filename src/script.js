@@ -30,6 +30,11 @@ function mvPopMatrix(){
 function setUniformMatrix(){
 	gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, mvMatrix);
 	gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, pMatrix);
+
+	var normalMatrix = mat3.create();
+	mat4.toInverseMat3(mvMatrix, normalMatrix);
+	mat3.transpose(normalMatrix);
+	gl.uniformMatrix3fv(shaderProgram.nMatrixUniform, false, normalMatrix);
 }
 
 
@@ -90,12 +95,19 @@ function initShaders(){
     shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
     gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
 
+		shaderProgram.vertexNormalAttribute = gl.getAttribLocation(shaderProgram, "aVertexNormal");
+		gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);
+
     shaderProgram.textureCoordAttribute = gl.getAttribLocation(shaderProgram, "aTextureCoord");
     gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
 
     shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram,"uMVMatrix");
     shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
+		shaderProgram.nMatrixUniform = gl.getUniformLocation(shaderProgram, "uNMatrix");
     shaderProgram.samplerUniform = gl.getUniformLocation(shaderProgram, "uSampler");
+		shaderProgram.ambientColorUniform = gl.getUniformLocation(shaderProgram, "uAmbientColor");
+		shaderProgram.pointLightingLocationUniform = gl.getUniformLocation(shaderProgram, "uPointLightingLocation");
+		shaderProgram.pointLightingColorUniform = gl.getUniformLocation(shaderProgram, "uPointLightingColor");
 }
 
 
@@ -123,6 +135,7 @@ var cubes = [];
 var walls = [];
 var flat = new Flat(0.0 , 0.0, -2); //Mat phang
 var sphere =  new Sphere(0, 0, flat.posZ + radius);
+var light = new Light(0, 0, -9.5, [0.2, 0.2, 0.2], [0.8, 0.8, 0.8]);
 function drawScene(){
 	text.clearRect(0,0, text.canvas.width, text.canvas.height);
 	var msg = "Scores : " + score;
@@ -133,6 +146,8 @@ function drawScene(){
 	mat4.translate(mvMatrix, [0.0, 0.0, zoom]);
 	mat4.rotate(mvMatrix, degToRad(-50), [1, 0 , 0]);
 	//mat4.rotate(mvMatrix, degToRad(-50), [0, 1 , 0]);
+	light.setLightUniform();
+
 	flat.draw();
 
 	sphere.draw();

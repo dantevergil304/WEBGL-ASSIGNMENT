@@ -1,6 +1,7 @@
 var flatVertexBuffer;
 var flatTextureBuffer;
 var flatIndexBuffer;
+var flatNormalBuffer;
 var FlatWidth = 3.5; //x
 var FlatHeight = 4.5; //y
 
@@ -33,6 +34,18 @@ function initFlatBuffer(){
 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoords), gl.STATIC_DRAW);
 	flatTextureBuffer.itemSize = 2;
 	flatTextureBuffer.numItems = 4;
+
+	flatNormalBuffer = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, flatNormalBuffer);
+	var normals = [
+			0.0, 0.0, 1.0,
+			0.0, 0.0, 1.0,
+			0.0, 0.0, 1.0,
+			0.0, 0.0, 1.0
+	];
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normals), gl.STATIC_DRAW);
+	flatNormalBuffer.itemSize = 3;
+	flatNormalBuffer.numItems = 4;
 
 	flatIndexBuffer = gl.createBuffer();
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, flatIndexBuffer);
@@ -81,6 +94,9 @@ Flat.prototype.draw = function(){
 
 	gl.bindBuffer(gl.ARRAY_BUFFER, flatTextureBuffer);
 	gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, flatTextureBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+	gl.bindBuffer(gl.ARRAY_BUFFER, flatNormalBuffer);
+	gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, flatNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
 	gl.activeTexture(gl.TEXTURE0);
 	gl.bindTexture(gl.TEXTURE_2D, flatTexture);
