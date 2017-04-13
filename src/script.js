@@ -135,7 +135,8 @@ var cubes = [];
 var walls = [];
 var flat = new Flat(0.0 , 0.0, -2); //Mat phang
 var sphere =  new Sphere(0, 0, flat.posZ + radius);
-var light = new Light(0, 0, -9.5, [0.2, 0.2, 0.2], [0.8, 0.8, 0.8]);
+//var light = new Light(0, 0, -9.5, [0.2, 0.2, 0.2], [0.8, 0.8, 0.8]);
+var light;
 function drawScene(){
 	text.clearRect(0,0, text.canvas.width, text.canvas.height);
 	var msg = "Scores : " + score;
@@ -146,6 +147,16 @@ function drawScene(){
 	mat4.translate(mvMatrix, [0.0, 0.0, zoom]);
 	mat4.rotate(mvMatrix, degToRad(-50), [1, 0 , 0]);
 	//mat4.rotate(mvMatrix, degToRad(-50), [0, 1 , 0]);
+
+	// move light point using mvMatrix;
+	var oldLightPos = [0, 0, -9.5];
+	var newLightPos = [0, 0, 0];
+	newLightPos[0] = mvMatrix[0] * oldLightPos[0] + mvMatrix[1] * oldLightPos[1] + mvMatrix[2] * oldLightPos[2];
+	newLightPos[1] = mvMatrix[4] * oldLightPos[0] + mvMatrix[5] * oldLightPos[1] + mvMatrix[6] * oldLightPos[2];
+	newLightPos[2] = mvMatrix[8] * oldLightPos[0] + mvMatrix[9] * oldLightPos[1] + mvMatrix[10] * oldLightPos[2];
+
+	light = new Light(newLightPos[0], newLightPos[1], newLightPos[2], [0.2, 0.2, 0.2], [0.8, 0.8, 0.8]);
+
 	light.setLightUniform();
 
 	flat.draw();
