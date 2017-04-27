@@ -101,7 +101,7 @@ function Sphere(x, y, z){
 
 Sphere.prototype.draw = function(){
     mvPushMatrix();
-    mat4.translate(mvMatrix, [this.posX, this.posY, this.posZ]);
+    mat4.translate(mvMatrix, [0, 0, this.posZ]);
     mat4.rotate(mvMatrix, degToRad(this.rot), this.direction);
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, sphereTexture);
@@ -144,14 +144,8 @@ Sphere.prototype.animate = function(elapsed){
 }
 
 Sphere.prototype.moveLeft = function(){
-  console.log(this.posX - radius > walls[2].posX + wallWidth);
-  if (this.posX - radius > walls[2].posX + wallWidth){
-    light.posX += speed;
-    flat.posX += speed;
-    for (var i = 0; i < cubes.length; i++)
-      cubes[i].posX +=speed;
-    for (var i = 0; i< walls.length; i++)
-      walls[i].posX += speed;
+    if (this.posX - radius > walls[2].posX + wallWidth){
+    this.posX -= speed;
     caculate = Sub;
     //if (this.rot > 0) this.rot = -this.rot;
     this.direction = [0, 1, 0];
@@ -160,12 +154,7 @@ Sphere.prototype.moveLeft = function(){
 
 Sphere.prototype.moveRight = function(){
   if (this.posX + radius < walls[3].posX - wallWidth){
-    light.posX -= speed;
-    flat.posX -= speed;
-    for (var i = 0; i < cubes.length; i++)
-      cubes[i].posX -=speed;
-    for (var i = 0; i< walls.length; i++)
-      walls[i].posX -= speed;
+    this.posX += speed;
     caculate = Add;
     //if (this.rot < 0) this.rot = -this.rot;
     this.direction = [0, 1, 0];
@@ -174,12 +163,7 @@ Sphere.prototype.moveRight = function(){
 
 Sphere.prototype.moveUp = function(){
   if (this.posY + radius < walls[0].posY - wallHeight){
-    light.posY -= speed;
-    flat.posY -= speed;
-    for (var i = 0; i < cubes.length; i++)
-      cubes[i].posY -=speed;
-    for (var i = 0; i< walls.length; i++)
-      walls[i].posY -= speed;
+    this.posY += speed;
     caculate = Sub;
     //if (this.rot > 0) this.rot = -this.rot;
     this.direction = [1, 0 , 0];
@@ -188,12 +172,7 @@ Sphere.prototype.moveUp = function(){
 
 Sphere.prototype.moveDown = function(){
   if (this.posY - radius > walls[1].posY + wallHeight){
-    light.posY += speed;
-    flat.posY += speed;
-    for (var i = 0; i < cubes.length; i++)
-      cubes[i].posY +=speed;
-    for (var i = 0; i< walls.length; i++)
-      walls[i].posY += speed;
+    this.posY -= speed;
     caculate = Add;
     //if (this.rot < 0) this.rot = -this.rot;
     this.direction = [1, 0, 0];

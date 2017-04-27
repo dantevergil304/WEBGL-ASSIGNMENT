@@ -135,7 +135,6 @@ var cubes = [];
 var walls = [];
 var flat = new Flat(0.0 , 0.0, -2); //Mat phang
 var sphere =  new Sphere(0, 0, flat.posZ + radius);
-//var light = new Light(0, 0, -9.5, [0.2, 0.2, 0.2], [0.8, 0.8, 0.8]);
 var light;
 function drawScene(){
 	text.clearRect(0,0, text.canvas.width, text.canvas.height);
@@ -144,8 +143,10 @@ function drawScene(){
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	mat4.perspective(45, canvas.width / canvas.height, 0.1, 100.0, pMatrix);
 	mat4.identity(mvMatrix);
-	mat4.translate(mvMatrix, [0.0, 0.0, zoom]);
-	mat4.rotate(mvMatrix, degToRad(-50), [1, 0 , 0]);
+	//mvPushMatrix();
+	mat4.translate(mvMatrix, [0, 0, zoom]);
+	mat4.rotate(mvMatrix, degToRad(-70), [1, 0 , 0]);
+
 	//mat4.rotate(mvMatrix, degToRad(-50), [0, 1 , 0]);
 
 	// move light point using mvMatrix;
@@ -154,20 +155,23 @@ function drawScene(){
 	newLightPos[0] = mvMatrix[0] * oldLightPos[0] + mvMatrix[1] * oldLightPos[1] + mvMatrix[2] * oldLightPos[2];
 	newLightPos[1] = mvMatrix[4] * oldLightPos[0] + mvMatrix[5] * oldLightPos[1] + mvMatrix[6] * oldLightPos[2];
 	newLightPos[2] = mvMatrix[8] * oldLightPos[0] + mvMatrix[9] * oldLightPos[1] + mvMatrix[10] * oldLightPos[2];
-
 	light = new Light(newLightPos[0], newLightPos[1], newLightPos[2], [0.2, 0.2, 0.2], [0.8, 0.8, 0.8]);
-
 	light.setLightUniform();
 
-	flat.draw();
-
+	//draw object
 	sphere.draw();
-
+	console.log(sphere.posY);
+	mat4.translate(mvMatrix, [-sphere.posX,-sphere.posY, 0]);
+	flat.draw();
 	for (var i = 0; i < walls.length; i++)
 		walls[i].draw();
 
 	for (var i = 0; i < cubes.length; i++)
 		cubes[i].draw();
+	/*mvPopMatrix();
+	mvPushMatrix();
+	mat4.translate(mvMatrix, [sphere.posX, sphere.posY, sphere.posZ]);
+	mvPopMatrix();*/
 }
 
 //Khoi tao cac khoi lap phuong(vi tri so voi Flat)
@@ -222,16 +226,19 @@ function animate(){
 var currentlyPressedKey = {};
 function handleKeyDown(event){
 	currentlyPressedKey[event.keyCode] = true;
+	if (event.keyCode == 16)
+		speed = 0.03;
 
 }
 
 function handleKeyUp(event){
 	currentlyPressedKey[event.keyCode] = false;
-
+	if (event.keyCode == 16)
+		speed = 0.01;
 }
 
 function intersectObject(x1, y1, x2, y2){
-	var number = (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
+	var number =	 (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
 	var para1 = (radius - cubeSize) * (radius - cubeSize);
 	var para2 = (radius + cubeSize) * (radius + cubeSize);
 	return para1 <= number && number <= para2;
@@ -239,11 +246,8 @@ function intersectObject(x1, y1, x2, y2){
 
 function colisionDetected(){
 	var playerX = sphere.posX , playerY = sphere.posY;
-	console.log(playerX);
-	console.log(playerY);
 	for (var i = 0; i < cubes.length; i++)
 		if (intersectObject(playerX, playerY, cubes[i].posX, cubes[i].posY)){
-			console.log("colisionDetected");
 			cubes.splice(i,1);
 			score++;
 		}
@@ -282,7 +286,8 @@ function WebGLload(){
 	gl = canvas.getContext('webgl');
 	textCanvas = document.getElementById('text');
 	text = textCanvas.getContext('2d');
-	text.font = "10px Monospace";
+	text.font = "14px Monospace";
+	text.fillStyle = "yellow";
 	initViewPort();
 	initShaders();
 	initFlatBuffer();
@@ -294,7 +299,8 @@ function WebGLload(){
 	initWallTexture();
 	initSphereBuffer();
 	initSphereTexture();
-	gl.clearColor(220/250, 220/250, 220/250, 1.0);
+
+	gl.clearColor(0.0, 0.0, 0.0, 1.0);
 	gl.enable(gl.DEPTH_TEST);
 	initCube();
 	initWalls();
