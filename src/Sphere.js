@@ -123,6 +123,7 @@ Sphere.prototype.draw = function(){
 }
 
 var speed = 0.01;
+var rotateSpeed = 360;
 
 function Add(a, b){
   return a + b;
@@ -132,22 +133,14 @@ function Sub(a, b){
 }
 
 var caculate = null;
-
 Sphere.prototype.animate = function(elapsed){
-  /*if (this.rot < 0 ){
-    this.rot -= (360 * elapsed) / 1000.0;
-  }
-  else {
-    this.rot += (360 * elapsed) / 1000.0;
-  }*/
-  this.rot = caculate(this.rot, (360 * elapsed) / 1000.0);
+  this.rot = caculate(this.rot, (rotateSpeed * elapsed) / 1000.0);
 }
 
 Sphere.prototype.moveLeft = function(){
     if (this.posX - radius > walls[2].posX + wallWidth){
     this.posX -= speed;
     caculate = Sub;
-    //if (this.rot > 0) this.rot = -this.rot;
     this.direction = [0, 1, 0];
   }
 }
@@ -156,7 +149,6 @@ Sphere.prototype.moveRight = function(){
   if (this.posX + radius < walls[3].posX - wallWidth){
     this.posX += speed;
     caculate = Add;
-    //if (this.rot < 0) this.rot = -this.rot;
     this.direction = [0, 1, 0];
   }
 }
@@ -165,7 +157,6 @@ Sphere.prototype.moveUp = function(){
   if (this.posY + radius < walls[0].posY - wallHeight){
     this.posY += speed;
     caculate = Sub;
-    //if (this.rot > 0) this.rot = -this.rot;
     this.direction = [1, 0 , 0];
   }
 }
@@ -174,7 +165,6 @@ Sphere.prototype.moveDown = function(){
   if (this.posY - radius > walls[1].posY + wallHeight){
     this.posY -= speed;
     caculate = Add;
-    //if (this.rot < 0) this.rot = -this.rot;
     this.direction = [1, 0, 0];
   }
 }

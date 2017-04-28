@@ -2,13 +2,12 @@ var gl;
 var canvas;
 var tex;
 var score = 0;
+
 function initViewPort(){
 	gl.viewport(0, 0, canvas.width, canvas.height);
 }
 
-
 //Setup matrix
-
 var mvMatrix = mat4.create();
 var pMatrix = mat4.create();
 var mvStackMatrices = [];
@@ -26,7 +25,6 @@ function mvPopMatrix(){
 	mvMatrix = mvStackMatrices.pop();
 }
 
-
 function setUniformMatrix(){
 	gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, mvMatrix);
 	gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, pMatrix);
@@ -37,10 +35,7 @@ function setUniformMatrix(){
 	gl.uniformMatrix3fv(shaderProgram.nMatrixUniform, false, normalMatrix);
 }
 
-
-
 //Setup Shader program
-
 function getShader(gl, id) {
 	var shaderScript = document.getElementById(id);
     if (!shaderScript) {
@@ -136,6 +131,8 @@ var walls = [];
 var flat = new Flat(0.0 , 0.0, -2); //Mat phang
 var sphere =  new Sphere(0, 0, flat.posZ + radius);
 var light;
+var angle = 70;
+
 function drawScene(){
 	text.clearRect(0,0, text.canvas.width, text.canvas.height);
 	var msg = "Scores : " + score;
@@ -143,11 +140,8 @@ function drawScene(){
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	mat4.perspective(45, canvas.width / canvas.height, 0.1, 100.0, pMatrix);
 	mat4.identity(mvMatrix);
-	//mvPushMatrix();
 	mat4.translate(mvMatrix, [0, 0, zoom]);
-	mat4.rotate(mvMatrix, degToRad(-70), [1, 0 , 0]);
-
-	//mat4.rotate(mvMatrix, degToRad(-50), [0, 1 , 0]);
+	mat4.rotate(mvMatrix, degToRad(-angle), [1, 0 , 0]);
 
 	// move light point using mvMatrix;
 	var oldLightPos = [0, 0, -9.5];
@@ -168,14 +162,9 @@ function drawScene(){
 
 	for (var i = 0; i < cubes.length; i++)
 		cubes[i].draw();
-	/*mvPopMatrix();
-	mvPushMatrix();
-	mat4.translate(mvMatrix, [sphere.posX, sphere.posY, sphere.posZ]);
-	mvPopMatrix();*/
 }
 
 //Khoi tao cac khoi lap phuong(vi tri so voi Flat)
-
 function initCube(){
 	var current_x = 0;
 	var current_y = 0;
@@ -188,9 +177,7 @@ function initCube(){
 	}
 }
 
-
 //Khoi tao cac buc tuong
-
 function initWalls(){
 	walls.push(new Wall(flat.posX, flat.posY + flat.height + wallHeight, flat.posZ));
 	walls.push(new Wall(flat.posX, flat.posY -flat.height - wallHeight, flat.posZ));
@@ -201,8 +188,7 @@ function initWalls(){
 
 
 function checkForMoving(){
-	for (var key in currentlyPressedKey)
-		if (currentlyPressedKey[key])
+		if (currentlyPressedKey[37] || currentlyPressedKey[40] || currentlyPressedKey[38] || currentlyPressedKey[39])
 			return true;
 	return false;
 }
@@ -226,15 +212,10 @@ function animate(){
 var currentlyPressedKey = {};
 function handleKeyDown(event){
 	currentlyPressedKey[event.keyCode] = true;
-	if (event.keyCode == 16)
-		speed = 0.03;
-
 }
 
 function handleKeyUp(event){
 	currentlyPressedKey[event.keyCode] = false;
-	if (event.keyCode == 16)
-		speed = 0.01;
 }
 
 function intersectObject(x1, y1, x2, y2){
@@ -269,7 +250,25 @@ function handleKeys(){
 	if (currentlyPressedKey[39] == true){
 		sphere.moveRight();
 	}
+
+	if (currentlyPressedKey[16] == true){
+		speed = 0.03;
+		rotateSpeed = 1080;
+	}
+	else if (currentlyPressedKey[16] == false){
+		speed = 0.01;
+		rotateSpeed = 360;
+	}
+
+	if (currentlyPressedKey[33] == true){
+		angle += 10;
+	}
+  if (currentlyPressedKey[34] == true){
+		angle -= 10;
+	}
+
 }
+
 
 
 function tick(){
