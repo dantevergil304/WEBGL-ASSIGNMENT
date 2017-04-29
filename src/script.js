@@ -143,19 +143,21 @@ function drawScene(){
 	mat4.translate(mvMatrix, [0, 0, zoom]);
 	mat4.rotate(mvMatrix, degToRad(-angle), [1, 0 , 0]);
 
-	// move light point using mvMatrix;
-	var oldLightPos = [0, 0, -9.5];
-	var newLightPos = [0, 0, 0];
-	newLightPos[0] = mvMatrix[0] * oldLightPos[0] + mvMatrix[1] * oldLightPos[1] + mvMatrix[2] * oldLightPos[2];
-	newLightPos[1] = mvMatrix[4] * oldLightPos[0] + mvMatrix[5] * oldLightPos[1] + mvMatrix[6] * oldLightPos[2];
-	newLightPos[2] = mvMatrix[8] * oldLightPos[0] + mvMatrix[9] * oldLightPos[1] + mvMatrix[10] * oldLightPos[2];
-	light = new Light(newLightPos[0], newLightPos[1], newLightPos[2], [0.2, 0.2, 0.2], [0.8, 0.8, 0.8]);
-	light.setLightUniform();
 
 	//draw object
 	sphere.draw();
 	console.log(sphere.posY);
 	mat4.translate(mvMatrix, [-sphere.posX,-sphere.posY, 0]);
+
+	// move light point using mvMatrix;
+	var oldLightPos = [0, 0, 0, 1];
+	var newLightPos = [0, 0, 0, 0];
+	newLightPos[0] = mvMatrix[0] * oldLightPos[0] + mvMatrix[4] * oldLightPos[1] + mvMatrix[8] * oldLightPos[2] + mvMatrix[12] * oldLightPos[3];
+	newLightPos[1] = mvMatrix[1] * oldLightPos[0] + mvMatrix[5] * oldLightPos[1] + mvMatrix[9] * oldLightPos[2] + mvMatrix[13] * oldLightPos[3];
+	newLightPos[2] = mvMatrix[2] * oldLightPos[0] + mvMatrix[6] * oldLightPos[1] + mvMatrix[10] * oldLightPos[2]+ mvMatrix[14] * oldLightPos[3];
+	light = new Light(newLightPos[0], newLightPos[1], newLightPos[2], [0.2, 0.2, 0.2], [0.8, 0.8, 0.8]);
+	light.setLightUniform();
+
 	flat.draw();
 	for (var i = 0; i < walls.length; i++)
 		walls[i].draw();
