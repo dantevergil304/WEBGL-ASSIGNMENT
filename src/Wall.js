@@ -24,7 +24,7 @@ function initWallBuffer(){
       -FlatWidth,  wallHeight,  wallSize,
 
       // Back face
-      -FlatWidth,  wallHeight,  wallSize,
+      -FlatWidth, -wallHeight, -wallSize,
       -FlatWidth,  wallHeight, -wallSize,
        FlatWidth,  wallHeight, -wallSize,
        FlatWidth, -wallHeight, -wallSize,
