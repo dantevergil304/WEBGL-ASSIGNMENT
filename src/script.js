@@ -90,19 +90,19 @@ function initShaders(){
     shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
     gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
 
-		shaderProgram.vertexNormalAttribute = gl.getAttribLocation(shaderProgram, "aVertexNormal");
-		gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);
+	shaderProgram.vertexNormalAttribute = gl.getAttribLocation(shaderProgram, "aVertexNormal");
+	gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);
 
     shaderProgram.textureCoordAttribute = gl.getAttribLocation(shaderProgram, "aTextureCoord");
     gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
 
     shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram,"uMVMatrix");
     shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
-		shaderProgram.nMatrixUniform = gl.getUniformLocation(shaderProgram, "uNMatrix");
+	shaderProgram.nMatrixUniform = gl.getUniformLocation(shaderProgram, "uNMatrix");
     shaderProgram.samplerUniform = gl.getUniformLocation(shaderProgram, "uSampler");
-		shaderProgram.ambientColorUniform = gl.getUniformLocation(shaderProgram, "uAmbientColor");
-		shaderProgram.pointLightingLocationUniform = gl.getUniformLocation(shaderProgram, "uPointLightingLocation");
-		shaderProgram.pointLightingColorUniform = gl.getUniformLocation(shaderProgram, "uPointLightingColor");
+	shaderProgram.ambientColorUniform = gl.getUniformLocation(shaderProgram, "uAmbientColor");
+	shaderProgram.pointLightingLocationUniform = gl.getUniformLocation(shaderProgram, "uPointLightingLocation");
+	shaderProgram.pointLightingColorUniform = gl.getUniformLocation(shaderProgram, "uPointLightingColor");
 }
 
 
@@ -131,7 +131,8 @@ var walls = [];
 var flat = new Flat(0.0 , 0.0, -2); //Mat phang
 var sphere =  new Sphere(0, 0, flat.posZ + radius);
 var light;
-var angle = 70;
+var xangle = 70;
+var yangle = 0;
 
 function drawScene(){
 	text.clearRect(0,0, text.canvas.width, text.canvas.height);
@@ -141,8 +142,8 @@ function drawScene(){
 	mat4.perspective(45, canvas.width / canvas.height, 0.1, 100.0, pMatrix);
 	mat4.identity(mvMatrix);
 	mat4.translate(mvMatrix, [0, 0, zoom]);
-	mat4.rotate(mvMatrix, degToRad(-angle), [1, 0 , 0]);
-
+	mat4.rotate(mvMatrix, degToRad(-xangle), [1, 0 , 0]);
+	mat4.rotate(mvMatrix, degToRad(-yangle), [0, 0 , 1]);
 
 	//draw object
 	sphere.draw();
@@ -257,16 +258,25 @@ function handleKeys(){
 		speed = 0.03;
 		rotateSpeed = 1080;
 	}
+
 	else if (currentlyPressedKey[16] == false){
 		speed = 0.01;
 		rotateSpeed = 360;
 	}
 
-	if (currentlyPressedKey[33] == true){
-		angle += 10;
+	if (currentlyPressedKey[87] == true){
+		xangle += 10;
 	}
-  if (currentlyPressedKey[34] == true){
-		angle -= 10;
+
+    if (currentlyPressedKey[83] == true){
+		xangle -= 10;
+	}
+
+	if (currentlyPressedKey[65] == true){
+		yangle += 10;
+	}
+	if (currentlyPressedKey[68] == true){
+		yangle -= 10;
 	}
 
 }
