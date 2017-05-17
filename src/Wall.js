@@ -25,9 +25,9 @@ function initWallBuffer(){
 
       // Back face
       -FlatWidth, -wallHeight, -wallSize,
-      -FlatWidth,  wallHeight, -wallSize,
-       FlatWidth,  wallHeight, -wallSize,
        FlatWidth, -wallHeight, -wallSize,
+       FlatWidth,  wallHeight, -wallSize,
+      -FlatWidth,  wallHeight, -wallSize,
 
       // Top face
       -FlatWidth,  wallHeight, -wallSize,
@@ -203,10 +203,10 @@ function initWall2Buffer(){
       -wallWidth,  FlatHeight + 2*wallHeight,  wallSize,
 
       // Back face
-      -wallWidth,  FlatHeight + 2*wallHeight,  wallSize,
-      -wallWidth,  FlatHeight + 2*wallHeight, -wallSize,
-       wallWidth,  FlatHeight + 2*wallHeight, -wallSize,
+      -wallWidth, -FlatHeight - 2*wallHeight, -wallSize,
        wallWidth, -FlatHeight - 2*wallHeight, -wallSize,
+       wallWidth,  FlatHeight + 2*wallHeight, -wallSize,
+      -wallWidth,  FlatHeight + 2*wallHeight, -wallSize,
 
       // Top face
       -wallWidth,  FlatHeight + 2*wallHeight, -wallSize,
@@ -216,9 +216,9 @@ function initWall2Buffer(){
 
       // Bottom face
       -wallWidth, -FlatHeight - 2*wallHeight, -wallSize,
+      -wallWidth, -FlatHeight - 2*wallHeight,  wallSize,
+       wallWidth, -FlatHeight - 2*wallHeight,  wallSize,
        wallWidth, -FlatHeight - 2*wallHeight, -wallSize,
-       wallWidth, -wallHeight - 2*wallHeight,  wallSize,
-      -wallWidth, -wallHeight - 2*wallHeight,  wallSize,
 
       // Right face
        wallWidth, -FlatHeight - 2*wallHeight, -wallSize,

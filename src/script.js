@@ -265,18 +265,18 @@ function handleKeys(){
 	}
 
 	if (currentlyPressedKey[87] == true){
-		xangle += 10;
+		xangle += 1.0;
 	}
 
     if (currentlyPressedKey[83] == true){
-		xangle -= 10;
+		xangle -= 1.0;
 	}
 
 	if (currentlyPressedKey[65] == true){
-		yangle += 10;
+		yangle += 0.5;
 	}
 	if (currentlyPressedKey[68] == true){
-		yangle -= 10;
+		yangle -= 0.5;
 	}
 
 }
