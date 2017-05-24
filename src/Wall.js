@@ -165,28 +165,37 @@ function initWallTexture(){
 }
 
 
-Wall.prototype.draw = function(){
-	mvPushMatrix();
+Wall.prototype.draw = function(program){
+	//mvPushMatrix();
 	mat4.translate(mvMatrix, [this.posX, this.posY, this.posZ]);
 
 	gl.bindBuffer(gl.ARRAY_BUFFER, wallVertexBuffer);
-	gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, wallVertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
+	gl.vertexAttribPointer(program.vertexPositionAttribute, wallVertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
-	gl.bindBuffer(gl.ARRAY_BUFFER, wallTextureBuffer);
-	gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, wallTextureBuffer.itemSize, gl.FLOAT, false, 0, 0);
+  if(program.textureCoordAttribute >= 0) {
+	  gl.bindBuffer(gl.ARRAY_BUFFER, wallTextureBuffer);
+	  gl.vertexAttribPointer(program.textureCoordAttribute, wallTextureBuffer.itemSize, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
 
-	gl.activeTexture(gl.TEXTURE0);
-	gl.bindTexture(gl.TEXTURE_2D, wallTexture);
-	gl.uniform1i(shaderProgram.samplerUniform, 0);
+  	gl.activeTexture(gl.TEXTURE1);
+  	gl.bindTexture(gl.TEXTURE_2D, wallTexture);
+  	gl.uniform1i(program.samplerUniform, 1);
 
-  gl.bindBuffer(gl.ARRAY_BUFFER, wallNormalBuffer);
-  gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, wallNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
+    gl.bindBuffer(gl.ARRAY_BUFFER, wallNormalBuffer);
+    gl.vertexAttribPointer(program.vertexNormalAttribute, wallNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);
+  }
+  if(program.textureCoordAttribute >= 0) {
+    setUniformMatrix();
+  }
+  else {
+    setMatrixUniformsShadow();
+  }
 
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, wallIndexBuffer);
-	setUniformMatrix();
 	gl.drawElements(gl.TRIANGLES, wallIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0)
 
-	mvPopMatrix();
+	//mvPopMatrix();
 }
 
 
@@ -244,27 +253,35 @@ function Wall2(x, y, z){
 
 Wall2.prototype = Object.create(Wall.prototype);
 
-Wall2.prototype.draw = function (){
-  mvPushMatrix();
+Wall2.prototype.draw = function (program){
+  //mvPushMatrix();
 
   mat4.translate(mvMatrix, [this.posX, this.posY, this.posZ]);
 
   gl.bindBuffer(gl.ARRAY_BUFFER, wall2VertexBuffer);
-  gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, wall2VertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
+  gl.vertexAttribPointer(program.vertexPositionAttribute, wall2VertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
-  gl.bindBuffer(gl.ARRAY_BUFFER, wallTextureBuffer);
-  gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, wallTextureBuffer.itemSize, gl.FLOAT, false, 0, 0);
+  if(program.textureCoordAttribute >= 0) {
+    gl.bindBuffer(gl.ARRAY_BUFFER, wallTextureBuffer);
+    gl.vertexAttribPointer(program.textureCoordAttribute, wallTextureBuffer.itemSize, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
 
-  gl.activeTexture(gl.TEXTURE0);
-  gl.bindTexture(gl.TEXTURE_2D, wallTexture);
-  gl.uniform1i(shaderProgram.samplerUniform, 0);
+    gl.activeTexture(gl.TEXTURE1);
+    gl.bindTexture(gl.TEXTURE_2D, wallTexture);
+    gl.uniform1i(program.samplerUniform, 1);
 
-  gl.bindBuffer(gl.ARRAY_BUFFER, wallNormalBuffer);
-  gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, wallNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
+    gl.bindBuffer(gl.ARRAY_BUFFER, wallNormalBuffer);
+    gl.vertexAttribPointer(program.vertexNormalAttribute, wallNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
+  }
+  if(program.textureCoordAttribute >= 0) {
+    setUniformMatrix();
+  }
+  else {
+    setMatrixUniformsShadow();
+  }
 
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, wallIndexBuffer);
-  setUniformMatrix();
   gl.drawElements(gl.TRIANGLES, wallIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0)
 
-  mvPopMatrix();
+  //mvPopMatrix();
 }

@@ -35,6 +35,11 @@ function setUniformMatrix(){
 	gl.uniformMatrix3fv(shaderProgram.nMatrixUniform, false, normalMatrix);
 }
 
+function setMatrixUniformsShadow() {
+    gl.uniformMatrix4fv(shadowProgram.pMatrixUniform, false, pMatrix);
+    gl.uniformMatrix4fv(shadowProgram.mvMatrixUniform, false, mvMatrix);
+}
+
 //Setup Shader program
 function getShader(gl, id) {
 	var shaderScript = document.getElementById(id);
@@ -91,20 +96,45 @@ function initShaders(){
     gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
 
 	shaderProgram.vertexNormalAttribute = gl.getAttribLocation(shaderProgram, "aVertexNormal");
-	gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);
+	//gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);
 
     shaderProgram.textureCoordAttribute = gl.getAttribLocation(shaderProgram, "aTextureCoord");
-    gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
+    //gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
 
-    shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram,"uMVMatrix");
-    shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
+  shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram,"uMVMatrix");
+  shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
 	shaderProgram.nMatrixUniform = gl.getUniformLocation(shaderProgram, "uNMatrix");
-    shaderProgram.samplerUniform = gl.getUniformLocation(shaderProgram, "uSampler");
+  shaderProgram.samplerUniform = gl.getUniformLocation(shaderProgram, "uSampler");
+	shaderProgram.shadowMapUniform = gl.getUniformLocation(shaderProgram, "uShadowMap");
+  shaderProgram.pMatrixFromLightUniform = gl.getUniformLocation(shaderProgram, "uPMatrixFromLight");
+  shaderProgram.mvMatrixFromLightUniform = gl.getUniformLocation(shaderProgram, "uMVMatrixFromLight");
 	shaderProgram.ambientColorUniform = gl.getUniformLocation(shaderProgram, "uAmbientColor");
 	shaderProgram.pointLightingLocationUniform = gl.getUniformLocation(shaderProgram, "uPointLightingLocation");
 	shaderProgram.pointLightingColorUniform = gl.getUniformLocation(shaderProgram, "uPointLightingColor");
 }
 
+var shadowProgram;
+function initShadow() {
+  var fragmentShader = getShader(gl, "shadow-fs");
+  var vertexShader = getShader(gl, "shadow-vs");
+
+  shadowProgram = gl.createProgram();
+  gl.attachShader(shadowProgram, vertexShader);
+  gl.attachShader(shadowProgram, fragmentShader);
+  gl.linkProgram(shadowProgram);
+
+  if (!gl.getProgramParameter(shadowProgram, gl.LINK_STATUS)) {
+      alert("Could not initialise shaders");
+  }
+
+  //gl.useProgram(shadowProgram);
+
+  shadowProgram.vertexPositionAttribute = gl.getAttribLocation(shadowProgram, "aVertexPosition");
+  gl.enableVertexAttribArray(shadowProgram.vertexPositionAttribute);
+
+  shadowProgram.pMatrixUniform = gl.getUniformLocation(shadowProgram, "uPMatrix");
+  shadowProgram.mvMatrixUniform = gl.getUniformLocation(shadowProgram, "uMVMatrix");
+}
 
 
 function handleLoadedTexture(texture) {
@@ -123,6 +153,64 @@ function degToRad(deg){
 	return deg * Math.PI / 180;
 }
 
+function initFramebufferObject() {
+  var framebuffer, texture, depthBuffer;
+
+  // Define the error handling function
+  var error = function() {
+    if (framebuffer) gl.deleteFramebuffer(framebuffer);
+    if (texture) gl.deleteTexture(texture);
+    if (depthBuffer) gl.deleteRenderbuffer(depthBuffer);
+    return null;
+  }
+
+  // Create a framebuffer object (FBO)
+  framebuffer = gl.createFramebuffer();
+  if (!framebuffer) {
+    console.log('Failed to create frame buffer object');
+    return error();
+  }
+
+  // Create a texture object and set its size and parameters
+  texture = gl.createTexture(); // Create a texture object
+  if (!texture) {
+    console.log('Failed to create texture object');
+    return error();
+  }
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, OFFSCREEN_WIDTH, OFFSCREEN_HEIGHT, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+
+  // Create a renderbuffer object and Set its size and parameters
+  depthBuffer = gl.createRenderbuffer(); // Create a renderbuffer object
+  if (!depthBuffer) {
+    console.log('Failed to create renderbuffer object');
+    return error();
+  }
+  gl.bindRenderbuffer(gl.RENDERBUFFER, depthBuffer);
+  gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, OFFSCREEN_WIDTH, OFFSCREEN_HEIGHT);
+
+  // Attach the texture and the renderbuffer object to the FBO
+  gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+  gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
+  gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, depthBuffer);
+
+  // Check if FBO is configured correctly
+  var e = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+  if (gl.FRAMEBUFFER_COMPLETE !== e) {
+    console.log('Frame buffer object is incomplete: ' + e.toString());
+    return error();
+  }
+
+  framebuffer.texture = texture; // keep the required object
+
+  // Unbind the buffer object
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  gl.bindTexture(gl.TEXTURE_2D, null);
+  gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+
+  return framebuffer;
+}
 
 //Ve
 var zoom = -10;
@@ -134,11 +222,71 @@ var light;
 var xangle = 70;
 var yangle = 0;
 
+var pMatrix_all = mat4.create();
+var mvMatrix_sphere = mat4.create();
+var mvMatrix_flat = mat4.create();
+var mvMatrix_wall = [];
+var mvMatrix_cube = [];
+var OFFSCREEN_WIDTH = 2048, OFFSCREEN_HEIGHT = 2048;
+var LIGHT_X = -10, LIGHT_Y = -10, LIGHT_Z = 11.0;
+function initmvMatrix() {
+	for(var i=0; i<12; i++) {
+		mvMatrix_cube.push(mat4.create());
+	}
+	for(var i=0; i<4; i++) {
+		mvMatrix_wall.push(mat4.create());
+	}
+}
 function drawScene(){
+	// Shadow Program;
+	gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+	gl.viewport(0, 0, OFFSCREEN_WIDTH, OFFSCREEN_HEIGHT);
+	//gl.viewport(0, 0, canvas.width, canvas.height);
+	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+	gl.useProgram(shadowProgram);
+
+	mat4.perspective(70, OFFSCREEN_WIDTH / OFFSCREEN_HEIGHT, 0.1, 100.0, pMatrix);
+	//mat4.perspective(45, canvas.width / canvas.height, 0.1, 100.0, pMatrix);
+	mat4.set(pMatrix, pMatrix_all);
+	mat4.lookAt([LIGHT_X, LIGHT_Y, LIGHT_Z], [0, 0, 0], [0, 1, 0], mvMatrix);
+
+	mvPushMatrix();
+	mat4.translate(mvMatrix, [sphere.posX, sphere.posY, 0]);
+	sphere.draw(shadowProgram);
+	mat4.set(mvMatrix, mvMatrix_sphere);
+	mvPopMatrix();
+
+	mvPushMatrix();
+	flat.draw(shadowProgram);
+	mat4.set(mvMatrix, mvMatrix_flat);
+	mvPopMatrix();
+
+	for (var i = 0; i < walls.length; i++) {
+		mvPushMatrix();
+		walls[i].draw(shadowProgram);
+		mat4.set(mvMatrix, mvMatrix_wall[i]);
+		mvPopMatrix();
+	}
+
+	for (var i = 0; i < cubes.length; i++) {
+		mvPushMatrix();
+		cubes[i].draw(shadowProgram);
+		mat4.set(mvMatrix, mvMatrix_cube[i]);
+		mvPopMatrix();
+	}
+
+	// Normal Program
+	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 	text.clearRect(0,0, text.canvas.width, text.canvas.height);
 	var msg = "Scores : " + score;
 	text.fillText(msg, 10 , 50);
+	gl.viewport(0, 0, canvas.width, canvas.height);
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+	gl.useProgram(shaderProgram);
+
+	gl.uniform1i(shaderProgram.shadowMapUniform, 0);
+	gl.uniformMatrix4fv(shaderProgram.pMatrixFromLightUniform, false, pMatrix_all);
+
 	mat4.perspective(45, canvas.width / canvas.height, 0.1, 100.0, pMatrix);
 	mat4.identity(mvMatrix);
 	mat4.translate(mvMatrix, [0, 0, zoom]);
@@ -146,12 +294,14 @@ function drawScene(){
 	mat4.rotate(mvMatrix, degToRad(-yangle), [0, 0 , 1]);
 
 	//draw object
-	sphere.draw();
-	console.log(sphere.posY);
+	mvPushMatrix();
+	gl.uniformMatrix4fv(shaderProgram.mvMatrixFromLightUniform, false, mvMatrix_sphere);
+	sphere.draw(shaderProgram);
+	mvPopMatrix();
 	mat4.translate(mvMatrix, [-sphere.posX,-sphere.posY, 0]);
 
 	// move light point using mvMatrix;
-	var oldLightPos = [0, 0, 0, 1];
+	var oldLightPos = [LIGHT_X, LIGHT_Y, LIGHT_Z, 1];
 	var newLightPos = [0, 0, 0, 0];
 	newLightPos[0] = mvMatrix[0] * oldLightPos[0] + mvMatrix[4] * oldLightPos[1] + mvMatrix[8] * oldLightPos[2] + mvMatrix[12] * oldLightPos[3];
 	newLightPos[1] = mvMatrix[1] * oldLightPos[0] + mvMatrix[5] * oldLightPos[1] + mvMatrix[9] * oldLightPos[2] + mvMatrix[13] * oldLightPos[3];
@@ -159,12 +309,24 @@ function drawScene(){
 	light = new Light(newLightPos[0], newLightPos[1], newLightPos[2], [0.2, 0.2, 0.2], [0.8, 0.8, 0.8]);
 	light.setLightUniform();
 
-	flat.draw();
-	for (var i = 0; i < walls.length; i++)
-		walls[i].draw();
+	mvPushMatrix();
+	gl.uniformMatrix4fv(shaderProgram.mvMatrixFromLightUniform, false, mvMatrix_flat);
+	flat.draw(shaderProgram);
+	mvPopMatrix();
 
-	for (var i = 0; i < cubes.length; i++)
-		cubes[i].draw();
+	for (var i = 0; i < walls.length; i++) {
+		mvPushMatrix();
+		gl.uniformMatrix4fv(shaderProgram.mvMatrixFromLightUniform, false, mvMatrix_wall[i]);
+		walls[i].draw(shaderProgram);
+		mvPopMatrix();
+	}
+
+	for (var i = 0; i < cubes.length; i++) {
+		mvPushMatrix();
+		gl.uniformMatrix4fv(shaderProgram.mvMatrixFromLightUniform, false, mvMatrix_cube[i]);
+		cubes[i].draw(shaderProgram);
+		mvPopMatrix();
+	}
 }
 
 //Khoi tao cac khoi lap phuong(vi tri so voi Flat)
@@ -291,7 +453,7 @@ function tick(){
 	animate();
 }
 
-
+var fbo;
 function WebGLload(){
 	canvas = document.getElementById('canvas');
 	gl = canvas.getContext('webgl');
@@ -301,6 +463,7 @@ function WebGLload(){
 	text.fillStyle = "yellow";
 	initViewPort();
 	initShaders();
+	initShadow();
 	initFlatBuffer();
 	initFlatTexture();
 	initCubeBuffer();
@@ -311,10 +474,19 @@ function WebGLload(){
 	initSphereBuffer();
 	initSphereTexture();
 
+	fbo = initFramebufferObject();
+	if(!fbo) {
+		console.log('Failed to initialize frame buffer object');
+		return;
+	}
+	gl.activeTexture(gl.TEXTURE0);
+	gl.bindTexture(gl.TEXTURE_2D, fbo.texture);
+
 	gl.clearColor(0.0, 0.0, 0.0, 1.0);
 	gl.enable(gl.DEPTH_TEST);
 	initCube();
 	initWalls();
+	initmvMatrix();
 	document.onkeyup = handleKeyUp;
 	document.onkeydown = handleKeyDown;
 	tick();
