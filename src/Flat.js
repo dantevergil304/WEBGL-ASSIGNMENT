@@ -2,8 +2,8 @@ var flatVertexBuffer;
 var flatTextureBuffer;
 var flatIndexBuffer;
 var flatNormalBuffer;
-var FlatWidth = 3.5; //x
-var FlatHeight = 4.5; //y
+var FlatWidth = 4.5; //x
+var FlatHeight = 6.5; //y
 
 function initFlatBuffer(){
 	flatVertexBuffer = gl.createBuffer();

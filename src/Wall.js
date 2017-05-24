@@ -6,7 +6,7 @@ var wallNormalBuffer;
 
 
 var wallHeight = 0.1; //y
-var wallSize = 0.75; //z
+var wallSize = 0.5; //z
 var wallWidth = 0.1; //x
 
 

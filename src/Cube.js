@@ -2,13 +2,11 @@ var cubeVertexBuffer;
 var cubeTextureBuffer;
 var cubeIndexBuffer;
 var cubeNormalBuffer;
-var cubeFlatRatio = 2100 / 19;
-var cubeSize = FlatWidth * FlatHeight / cubeFlatRatio;
+var cubeSize = 0.125;
 
 function initCubeBuffer() {
     cubeVertexBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexBuffer);
-    cubeSize = (FlatHeight * FlatWidth) / cubeFlatRatio;
     var verts = [-cubeSize, -cubeSize, cubeSize,
         cubeSize, -cubeSize, cubeSize,
         cubeSize, cubeSize, cubeSize, -cubeSize, cubeSize, cubeSize,

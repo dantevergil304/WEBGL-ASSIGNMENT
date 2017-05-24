@@ -334,8 +334,7 @@ function initCube(){
 	var current_x = 0;
 	var current_y = 0;
 	var rot= 0;
-	var radiusFlatRatio = 28/5;
-	var radius = (FlatHeight * FlatWidth) / radiusFlatRatio;
+	var radius = 4;
 	for (var i = 0; i < 12; i++){
 		cubes.push(new Cube(flat.posX + current_x + radius*Math.cos(degToRad(rot)),flat.posY + current_y + radius*Math.sin(degToRad(rot)), flat.posZ + 2.8 * cubeSize ));
 		rot += 30;
@@ -344,10 +343,10 @@ function initCube(){
 
 //Khoi tao cac buc tuong
 function initWalls(){
-	walls.push(new Wall(flat.posX, flat.posY + flat.height + wallHeight, flat.posZ));
-	walls.push(new Wall(flat.posX, flat.posY -flat.height - wallHeight, flat.posZ));
-	walls.push(new Wall2(flat.posX -flat.width - wallWidth, flat.posY, flat.posZ));
-	walls.push(new Wall2(flat.posX +flat.width + wallWidth, flat.posY, flat.posZ));
+	walls.push(new Wall(flat.posX, flat.posY + flat.height + wallHeight, flat.posZ + wallSize ));
+	walls.push(new Wall(flat.posX, flat.posY -flat.height - wallHeight, flat.posZ + wallSize));
+	walls.push(new Wall2(flat.posX -flat.width - wallWidth, flat.posY, flat.posZ + wallSize));
+	walls.push(new Wall2(flat.posX +flat.width + wallWidth, flat.posY, flat.posZ + wallSize));
 }
 
 
