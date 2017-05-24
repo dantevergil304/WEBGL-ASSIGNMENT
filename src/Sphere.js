@@ -99,27 +99,37 @@ function Sphere(x, y, z){
   this.direction = [1, 0, 0];
 }
 
-Sphere.prototype.draw = function(){
-    mvPushMatrix();
+Sphere.prototype.draw = function(program){
+    //mvPushMatrix();
     mat4.translate(mvMatrix, [0, 0, this.posZ]);
     mat4.rotate(mvMatrix, degToRad(this.rot), this.direction);
-    gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, sphereTexture);
-    gl.uniform1i(shaderProgram.samplerUniform, 0);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, sphereVertexPositionBuffer);
-    gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, sphereVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer(program.vertexPositionAttribute, sphereVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, sphereVertexTextureCoordBuffer);
-    gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, sphereVertexTextureCoordBuffer.itemSize, gl.FLOAT, false, 0, 0);
+    if(program.textureCoordAttribute >= 0) {
+      gl.bindBuffer(gl.ARRAY_BUFFER, sphereVertexTextureCoordBuffer);
+      gl.vertexAttribPointer(program.textureCoordAttribute, sphereVertexTextureCoordBuffer.itemSize, gl.FLOAT, false, 0, 0);
+      gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, sphereVertexNormalBuffer);
-    gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, sphereVertexNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
+      gl.activeTexture(gl.TEXTURE1);
+      gl.bindTexture(gl.TEXTURE_2D, sphereTexture);
+      gl.uniform1i(program.samplerUniform, 1);
+
+      gl.bindBuffer(gl.ARRAY_BUFFER, sphereVertexNormalBuffer);
+      gl.vertexAttribPointer(program.vertexNormalAttribute, sphereVertexNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
+      gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);
+    }
+    if(program.textureCoordAttribute >= 0) {
+      setUniformMatrix();
+    }
+    else {
+      setMatrixUniformsShadow();
+    }
 
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, sphereVertexIndexBuffer);
-    setUniformMatrix();
     gl.drawElements(gl.TRIANGLES, sphereVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-    mvPopMatrix();
+    //mvPopMatrix();
 }
 
 var speed = 0.01;

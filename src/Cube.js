@@ -2,13 +2,11 @@ var cubeVertexBuffer;
 var cubeTextureBuffer;
 var cubeIndexBuffer;
 var cubeNormalBuffer;
-var cubeFlatRatio = 2100 / 19;
-var cubeSize = FlatWidth * FlatHeight / cubeFlatRatio;
+var cubeSize = 0.125;
 
 function initCubeBuffer() {
     cubeVertexBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexBuffer);
-    cubeSize = (FlatHeight * FlatWidth) / cubeFlatRatio;
     var verts = [-cubeSize, -cubeSize, cubeSize,
         cubeSize, -cubeSize, cubeSize,
         cubeSize, cubeSize, cubeSize, -cubeSize, cubeSize, cubeSize,
@@ -149,36 +147,45 @@ function Cube(x, y, z) {
 }
 
 
-Cube.prototype.draw = function() {
-    mvPushMatrix();
+Cube.prototype.draw = function(program) {
+    //mvPushMatrix();
 
     mat4.translate(mvMatrix, [this.posX, this.posY, this.posZ]);
     mat4.rotate(mvMatrix, degToRad(this.rotY), [0, 0, 1]);
     mat4.rotate(mvMatrix, degToRad(this.rotY), [0, 1, 0]);
     mat4.rotate(mvMatrix, degToRad(this.rotY), [1, 0, 0]);
-    drawCube();
+    drawCube(program);
 
-    mvPopMatrix();
+    //mvPopMatrix();
 }
 
 Cube.prototype.animate = function(elapsed) {
     this.rotY += (90 * elapsed) / 1000.0;
 }
 
-function drawCube() {
+function drawCube(program) {
     gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexBuffer);
-    gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, cubeVertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
-    gl.bindBuffer(gl.ARRAY_BUFFER, cubeTextureBuffer);
-    gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, cubeTextureBuffer.itemSize, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer(program.vertexPositionAttribute, cubeVertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
-    gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, cubeTexture);
-    gl.uniform1i(shaderProgram.samplerUniform, 0);
+    if(program.textureCoordAttribute >= 0) {
+      gl.bindBuffer(gl.ARRAY_BUFFER, cubeTextureBuffer);
+      gl.vertexAttribPointer(program.textureCoordAttribute, cubeTextureBuffer.itemSize, gl.FLOAT, false, 0, 0);
+      gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, cubeNormalBuffer);
-    gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, cubeNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
+      gl.activeTexture(gl.TEXTURE1);
+      gl.bindTexture(gl.TEXTURE_2D, cubeTexture);
+      gl.uniform1i(program.samplerUniform, 1);
 
+      gl.bindBuffer(gl.ARRAY_BUFFER, cubeNormalBuffer);
+      gl.vertexAttribPointer(program.vertexNormalAttribute, cubeNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
+      gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);
+    }
+    if(program.textureCoordAttribute >= 0) {
+      setUniformMatrix();
+    }
+    else {
+      setMatrixUniformsShadow();
+    }
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeIndexBuffer);
-    setUniformMatrix();
     gl.drawElements(gl.TRIANGLES, cubeIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
 }

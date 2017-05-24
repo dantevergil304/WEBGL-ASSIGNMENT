@@ -2,8 +2,8 @@ var flatVertexBuffer;
 var flatTextureBuffer;
 var flatIndexBuffer;
 var flatNormalBuffer;
-var FlatWidth = 3.5; //x
-var FlatHeight = 4.5; //y
+var FlatWidth = 4.5; //x
+var FlatHeight = 6.5; //y
 
 function initFlatBuffer(){
 	flatVertexBuffer = gl.createBuffer();
@@ -86,24 +86,34 @@ function Flat(x, y, z){
 
 
 //Ve mat phang
-Flat.prototype.draw = function(){
-	mvPushMatrix();
+Flat.prototype.draw = function(program){
+	//mvPushMatrix();
 	mat4.translate(mvMatrix, [this.posX, this.posY , this.posZ]);
 	gl.bindBuffer(gl.ARRAY_BUFFER, flatVertexBuffer);
-	gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, flatVertexBuffer.itemSize, gl.FLOAT, false, 0 , 0);
+	gl.vertexAttribPointer(program.vertexPositionAttribute, flatVertexBuffer.itemSize, gl.FLOAT, false, 0 , 0);
 
-	gl.bindBuffer(gl.ARRAY_BUFFER, flatTextureBuffer);
-	gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, flatTextureBuffer.itemSize, gl.FLOAT, false, 0, 0);
+	if(program.textureCoordAttribute >= 0) {
+		gl.bindBuffer(gl.ARRAY_BUFFER, flatTextureBuffer);
+		gl.vertexAttribPointer(program.textureCoordAttribute, flatTextureBuffer.itemSize, gl.FLOAT, false, 0, 0);
+		gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
 
-	gl.bindBuffer(gl.ARRAY_BUFFER, flatNormalBuffer);
-	gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, flatNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
+		gl.bindBuffer(gl.ARRAY_BUFFER, flatNormalBuffer);
+		gl.vertexAttribPointer(program.vertexNormalAttribute, flatNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
+		gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);
 
-	gl.activeTexture(gl.TEXTURE0);
-	gl.bindTexture(gl.TEXTURE_2D, flatTexture);
-	gl.uniform1i(shaderProgram.samplerUniform, 0);
+		gl.activeTexture(gl.TEXTURE1);
+		gl.bindTexture(gl.TEXTURE_2D, flatTexture);
+		gl.uniform1i(program.samplerUniform, 1);
+
+	}
+	if(program.textureCoordAttribute >= 0) {
+		setUniformMatrix();
+	}
+	else {
+		setMatrixUniformsShadow();
+	}
 
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, flatIndexBuffer);
-	setUniformMatrix();
 	gl.drawElements(gl.TRIANGLES, flatIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-	mvPopMatrix();
+	//mvPopMatrix();
 }

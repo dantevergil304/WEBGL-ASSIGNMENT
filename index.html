@@ -5,12 +5,35 @@
 	<meta charset="utf-8">
 	<script src="./lib/glMatrix.js"></script>
 	<script src="./lib/webgl-utils.js"></script>
+
+	<script id="shadow-fs" type="x-shader/x-fragment">
+	    precision mediump float;
+	    void main(void) {
+				const vec4 bitShift = vec4(1.0, 256.0, 256.0 * 256.0, 256.0 * 256.0 * 256.0);
+				const vec4 bitMask = vec4(1.0/256.0, 1.0/256.0, 1.0/256.0, 0.0);
+				vec4 rgbaDepth = fract(gl_FragCoord.z * bitShift);
+				rgbaDepth -= rgbaDepth.gbaa * bitMask;
+	      gl_FragColor = rgbaDepth;
+	    }
+	</script>
+
+	<script id="shadow-vs" type="x-shader/x-vertex">
+	    attribute vec3 aVertexPosition;
+
+	    uniform mat4 uMVMatrix;
+	    uniform mat4 uPMatrix;
+	    void main(void) {
+	      gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+	    }
+	</script>
+
 	<script id="shader-fs" type="x-shader/x-fragment">
 			precision mediump float;
 
 			varying vec2 vTextureCoord;
 			varying vec3 vTransformedNormal;
 			varying vec4 vPosition;
+			varying vec4 vPositionFromLight;
 
 			uniform vec3 uAmbientColor;
 
@@ -18,7 +41,13 @@
 			uniform vec3 uPointLightingColor;
 
 			uniform sampler2D uSampler;
+			uniform sampler2D uShadowMap;
 
+			float unpackDepth(const in vec4 rgbaDepth) {
+				const vec4 bitShift = vec4(1.0, 1.0/256.0, 1.0/(256.0 * 256.0), 1.0/(256.0 * 256.0 * 256.0));
+				float depth = dot(rgbaDepth, bitShift);
+				return depth;
+			}
 
 			void main(void) {
 					vec3 lightWeighting;
@@ -27,9 +56,14 @@
 					float directionalLightWeighting = max(dot(normalize(vTransformedNormal), lightDirection), 0.0);
 					lightWeighting = uAmbientColor + uPointLightingColor * directionalLightWeighting;
 
+					vec3 shadowCoord = (vPositionFromLight.xyz / vPositionFromLight.w)/2.0 + 0.5;
+					vec4 rgbaDepth = texture2D(uShadowMap, shadowCoord.xy);
+					float depth = unpackDepth(rgbaDepth);
+					float visibility = (shadowCoord.z > depth + 0.00004) ? 0.6 : 1.0;
+
 					vec4 fragmentColor;
 					fragmentColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
-					gl_FragColor = vec4(fragmentColor.rgb * lightWeighting, fragmentColor.a);
+					gl_FragColor = vec4(fragmentColor.rgb * lightWeighting * visibility, fragmentColor.a);
 			}
 	</script>
 
@@ -41,13 +75,16 @@
 			uniform mat4 uMVMatrix;
 			uniform mat4 uPMatrix;
 			uniform mat3 uNMatrix;
+			uniform mat4 uMVMatrixFromLight;
+			uniform mat4 uPMatrixFromLight;
 
 			varying vec2 vTextureCoord;
 			varying vec3 vTransformedNormal;
 			varying vec4 vPosition;
-
+			varying vec4 vPositionFromLight;
 
 			void main(void) {
+					vPositionFromLight = uPMatrixFromLight * uMVMatrixFromLight * vec4(aVertexPosition, 1.0);
 					vPosition = uMVMatrix * vec4(aVertexPosition, 1.0);
 					gl_Position = uPMatrix * vPosition;
 					vTextureCoord = aTextureCoord;
@@ -63,14 +100,20 @@
 	<style>
 		#text{
 			position: absolute;
-			left: 400px;
+			left: 0px;
 			top: 0px;
 			z-index: 10;
+			background-color: rgba(128,128,128, 0.5);
+		}
+		#canvas{
+			position : absolute;;
+			left: 0px;
+			top: 0px;
 		}
 	</style>
 </head>
 <body>
-	<canvas id="text" width="100" height="100"></canvas>
-	<canvas id='canvas' width='900' height='600'></canvas>
+	<canvas id="text" width="1350" height="60"></canvas>
+	<canvas id='canvas' width='1350' height='650'></canvas>
 </body>
 </html>
