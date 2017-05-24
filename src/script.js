@@ -215,10 +215,7 @@ var sphere =  new Sphere(0, 0, flat.posZ + radius);
 var light;
 var xangle = 70;
 var yangle = 0;
-<<<<<<< HEAD
-=======
 
->>>>>>> origin/master
 var pMatrix_all = mat4.create();
 var mvMatrix_sphere = mat4.create();
 var mvMatrix_flat = mat4.create();
@@ -271,27 +268,20 @@ function drawScene(){
 		mat4.set(mvMatrix, mvMatrix_cube[i]);
 		mvPopMatrix();
 	}
-<<<<<<< HEAD
 	var textPosX = 650;
 	var textPosY = 30;
-=======
 
->>>>>>> origin/master
 	// Normal Program
 	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 	text.clearRect(0,0, text.canvas.width, text.canvas.height);
 	var msg = "Scores : " + score;
-<<<<<<< HEAD
 	if (score == 12){
 		msg = "You have win the game press F5 to restart";
 		text.font = "32px Monospace";
 		textPosX = 300;
 		textCanvas.style.top = "300px";
 	}
-	text.fillText(msg, textPosX , textPosY);
-=======
-	text.fillText(msg, 10 , 50);
->>>>>>> origin/master
+	text.fillText(msg, textPosX , textPosY);	
 	gl.viewport(0, 0, canvas.width, canvas.height);
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	gl.useProgram(shaderProgram);
@@ -465,14 +455,11 @@ function tick(){
 }
 
 var fbo;
-<<<<<<< HEAD
 var text;
 var gl;
 var canvas;
 var score = 0;
 var textCanvas;
-=======
->>>>>>> origin/master
 function WebGLload(){
 	canvas = document.getElementById('canvas');
 	gl = canvas.getContext('webgl');
