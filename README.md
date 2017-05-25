@@ -31,6 +31,6 @@ Các yêu cầu nâng cao :<br /><br />
  
 ## Sinh viên thực hiện
   .ĐẶNG VŨ MINH HIẾU, MSSV : 15520218.<br />
-  .VÕ QUỐC HỨNG, MSSV : 15520289.<br />
+  .VÕ QUỐC HƯNG, MSSV : 15520289.<br />
 
 
