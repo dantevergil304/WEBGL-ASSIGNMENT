@@ -10,7 +10,7 @@ Sử dụng trình duyệt Firefox để chạy file html trong source code.<br 
 
 ## Hướng dẫn sử dụng
 
-Sử dụng các phím mũi tên để di chuyển quả cầu, các phím A, W, S, D để xoay camera ( lưu ý hướng di chuyển không tự động đổi khi xoay camera ), ấn và giữ phím Shift cùng các phím chuyển để tăng tốc độ quả bóng.
+Sử dụng các phím mũi tên để di chuyển quả cầu, các phím A, W, S, D để xoay camera ( lưu ý hướng di chuyển không tự động đổi khi xoay camera, chỉ thay đổi góc nhìn ), ấn và giữ phím Shift cùng các phím chuyển để tăng tốc độ quả bóng.
 
 ## Ảnh chụp
 
