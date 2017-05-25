@@ -4,7 +4,7 @@
 
 Ý tưởng thực hiện được dựa trên: https://unity3d.com/learn/tutorials/projects/roll-ball-tutorial.<br />
 
-## Yêu cầu hệ thống
+## Yêu cầu chương trình
 
 Sử dụng trình duyệt Firefox để chạy file html trong source code.<br />
 
@@ -18,7 +18,7 @@ Sử dụng các phím mũi tên để di chuyển quả cầu, các phím A, W,
 
 ## Các yêu cầu của đồ án được cài đặt 
   
-Các cầu cơ bản :<br /><br />
+Các yêu cầu cơ bản :<br /><br />
   . Xây dựng được scence của game.<br />
   . Load texture cho quả cầu và các chương ngại vật hình lập phương.<br />
   . Có hiện thực được Light.<br />
